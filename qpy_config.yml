@@ -1,0 +1,17 @@
+short_name: upload_notifier
+namespace: qpy
+version: 0.1.0
+api_version: '0.1'
+author: innoCampus <info@isis.tu-berlin.de>
+name:
+  de: Upload Notifier
+description:
+  de: Sendet einige IDs an eine Webhook-URL nach einem Klick auf `Check`.
+languages:
+  - de
+permissions:
+  lms_attributes:
+    - user_id
+    - group_id
+    - course_id
+    - lms_moodle_assignment_submission_id

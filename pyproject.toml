@@ -1,0 +1,15 @@
+[project]
+name = "upload-notifier"
+version = "0.1.0"
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+license = "MIT"
+requires-python = ">=3.12 <4.0"
+dependencies = [
+    "questionpy-sdk @ git+https://github.com/questionpy-org/questionpy-sdk.git@05a773f35a9ed6ca7e3d59c0a86d7b32cd3e5a4f"
+]
+
+
+[tool.poetry]
+package-mode = false

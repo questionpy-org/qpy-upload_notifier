@@ -15,3 +15,4 @@ permissions:
     - group_id
     - course_id
     - lms_moodle_assignment_submission_id
+    - lms_moodle_module_instance

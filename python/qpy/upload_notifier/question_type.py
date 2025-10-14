@@ -12,8 +12,7 @@ from .form import UploadNotifierModel
 
 class UploadNotifierScoringState(BaseScoringState):
     webhook_response_code: int | None = None
-    user_message: str | None = None
-    internal_message: str | None = None
+    error_message: str | None = None
 
 
 class UploadNotifierAttempt(Attempt):
@@ -42,40 +41,40 @@ class UploadNotifierAttempt(Attempt):
         except HTTPError as error:
             self.scoring_state = UploadNotifierScoringState(
                 webhook_response_code=error.getcode(),
-                user_message="Der Server konnte nicht erreicht werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt noch einmal.",
-                internal_message=str(error),
+                error_message=str(error),
             )
             raise ResponseNotScorableError from error
         except URLError as error:
             self.scoring_state = UploadNotifierScoringState(
-                user_message="Der Server konnte nicht erreicht werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt noch einmal.",
-                internal_message=str(error),
+                error_message=str(error),
             )
             raise ResponseNotScorableError from error
-
 
     def _compute_score(self) -> float:
         attributes = get_qpy_environment().request_info.lms_provided_attributes.model_dump()
         if submission_id := attributes["lms"].pop("lms_moodle_assignment_submission_id", None):
             attributes["lms"]["submission_id"] = submission_id
 
+        if module_instance := attributes["lms"].pop("lms_moodle_module_instance", None):
+            attributes["lms"]["module_instance"] = module_instance
+
         self._send_to_webhook(attributes)
 
         raise NeedsManualScoringError
 
+    def _error_occurred(self) -> bool:
+        return self.scoring_state and self.scoring_state.error_message is not None
 
     @property
     def specific_feedback(self) -> str | None:
-        if self.scoring_state and self.scoring_state.user_message:
-            return self.jinja2.get_template("feedback.xhtml.j2").render({
-                "message": self.scoring_state.user_message,
-            })
+        if self._error_occurred():
+            return self.jinja2.get_template("retry_message.xhtml.j2").render()
         return None
-
 
     @property
     def formulation(self) -> str:
-        return self.jinja2.get_template("formulation.xhtml.j2").render({"timestamp": time()})
+        data = {"timestamp": time()} if self._error_occurred() else {}
+        return self.jinja2.get_template("formulation.xhtml.j2").render(data)
 
 
 class UploadNotifierQuestion(Question):

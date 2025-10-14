@@ -3,9 +3,11 @@
     <qpy:file-upload name="upload" />
     <p>{{ question.options.information }}</p>
 
-    <!--
-        In the case that the server was not reachable, we still want to be able to resend the request.
-        When Moodle detects that the form data did not change, it won't rescore the question. This is a workaround.
-     -->
-    <input name="timestamp-{{ timestamp }}" type="hidden"/>
+    {% if timestamp is defined %}
+      <!--
+          In the case that the server was not reachable, we still want to be able to resend the request.
+          When Moodle detects that the form data did not change, it won't rescore the question. This is a workaround.
+       -->
+      <input name="timestamp-{{ timestamp }}" type="hidden"/>
+    {% endif %}
 </div>

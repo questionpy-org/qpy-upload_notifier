@@ -51,12 +51,18 @@ class UploadNotifierAttempt(Attempt):
             raise ResponseNotScorableError from error
 
     def _compute_score(self) -> float:
-        attributes = get_qpy_environment().request_info.lms_provided_attributes.model_dump()
-        if submission_id := attributes["lms"].pop("lms_moodle_assignment_submission_id", None):
-            attributes["lms"]["submission_id"] = submission_id
+        environment = get_qpy_environment()
+        if not environment.request_info or not environment.request_info.lms_provided_attributes:
+            raise NeedsManualScoringError
 
-        if module_instance := attributes["lms"].pop("lms_moodle_module_instance", None):
-            attributes["lms"]["module_instance"] = module_instance
+        attributes = environment.request_info.lms_provided_attributes.model_dump()
+
+        if attributes["lms"]:
+            if submission_id := attributes["lms"].pop("lms_moodle_assignment_submission_id", None):
+                attributes["lms"]["submission_id"] = submission_id
+
+            if module_instance := attributes["lms"].pop("lms_moodle_module_instance", None):
+                attributes["lms"]["module_instance"] = module_instance
 
         self._send_to_webhook(attributes)
 

@@ -5,10 +5,13 @@ api_version: '0.1'
 author: innoCampus <info@isis.tu-berlin.de>
 name:
   de: Upload Notifier
+  en: Upload Notifier
 description:
   de: Sendet einige IDs an eine Webhook-URL nach einem Klick auf `Check`.
+  en: Sends some IDs to a webhook URL after clicking on `Check`.
 languages:
   - de
+  - en
 permissions:
   lms_attributes:
     - user_id

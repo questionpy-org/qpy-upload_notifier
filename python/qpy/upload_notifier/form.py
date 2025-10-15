@@ -30,6 +30,12 @@ class UploadNotifierModel(FormModel):
         help="Diese Information wird den Nutzern angezeigt.",
     )
 
+    @field_validator("username")
+    def validate_username(cls, value: str) -> str:
+        if ":" in value:
+            raise ValueError("Der Username darf keine Doppelpunkte enthalten.")
+        return value
+
     @field_validator("webhook_url")
     def validate_webhook_url(cls, value: str) -> str:
         try:
